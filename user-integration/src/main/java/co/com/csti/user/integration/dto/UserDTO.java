@@ -1,4 +1,4 @@
-package co.com.csti.user.integration;
+package co.com.csti.user.integration.dto;
 
 import java.io.Serializable;
 import java.util.Date;

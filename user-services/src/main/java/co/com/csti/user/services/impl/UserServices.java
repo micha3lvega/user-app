@@ -21,6 +21,11 @@ public class UserServices implements IUserService {
 
 	private ModelMapper mapper;
 
+	/**
+	 * Default constructor
+	 * @param repository
+	 * @param mapper
+	 */
 	public UserServices(UserRepository repository, ModelMapper mapper) {
 		this.repository = repository;
 		this.mapper = mapper;

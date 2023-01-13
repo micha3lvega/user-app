@@ -1,6 +1,6 @@
 package co.com.csti.user.integration.dto;
 
-public enum RolE {
+public enum ERole {
 
 	USER, ADMIN;
 

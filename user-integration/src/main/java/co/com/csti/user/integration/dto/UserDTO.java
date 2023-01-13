@@ -2,7 +2,8 @@ package co.com.csti.user.integration.dto;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
@@ -30,7 +31,7 @@ public class UserDTO implements Serializable {
 	private String lastName;
 
 	@NotEmpty(message = "El numero de telefono es obligatorio")
-	@Size(min = 10, max =  10, message = "El telefono debe ser de 10 digitos")
+	@Size(min = 10, max = 10, message = "El telefono debe ser de 10 digitos")
 	private String mobileNumber;
 
 	@Email
@@ -40,13 +41,14 @@ public class UserDTO implements Serializable {
 	@Size(min = 2, max = 60, message = "El tamaño de la contraseña debe tener entre 6 y 60 carcateres")
 	private String password;
 
-	private Date createDate;
-
-	private Date lastUpdate;
-
-	private List<RolE> roles;
+	@Builder.Default
+	private Set<ERole> roles = new HashSet<>();
 
 	@Builder.Default
 	private boolean active = true;
+
+	private Date createDate;
+
+	private Date lastUpdate;
 
 }

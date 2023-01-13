@@ -3,6 +3,7 @@ package co.com.csti.user.services.impl;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -21,14 +22,19 @@ public class UserServices implements IUserService {
 
 	private ModelMapper mapper;
 
+	private PasswordEncoder encoder;
+
+
 	/**
 	 * Default constructor
 	 * @param repository
 	 * @param mapper
+	 * @param encoder
 	 */
-	public UserServices(UserRepository repository, ModelMapper mapper) {
+	public UserServices(UserRepository repository, ModelMapper mapper, PasswordEncoder encoder) {
 		this.repository = repository;
 		this.mapper = mapper;
+		this.encoder = encoder;
 	}
 
 	/*
@@ -86,6 +92,9 @@ public class UserServices implements IUserService {
 			throw new UserExistsException("Ya existe un usuario con el email: " + user.getEmail());
 		}
 
+		// Codificar la contraseña
+		user.setPassword(encoder.encode(user.getPassword() + user.getEmail()));
+
 		var newUser = repository.insert(mapper.map(user, User.class));
 		return mapper.map(newUser, UserDTO.class);
 
@@ -104,6 +113,9 @@ public class UserServices implements IUserService {
 
 		// No permitir que se actualice el correo
 		user.setEmail(userByID.getEmail());
+
+		// No permitir que se actualice la contraseña
+		user.setPassword(user.getPassword());
 
 		var newUser = repository.save(mapper.map(user, User.class));
 		return mapper.map(newUser, UserDTO.class);

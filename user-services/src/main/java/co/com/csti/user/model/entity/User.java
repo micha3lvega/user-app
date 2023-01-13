@@ -52,6 +52,7 @@ public class User implements Serializable {
 	@LastModifiedDate
 	private Date lastUpdate;
 
-	private Boolean active;
+	@Builder.Default
+	private boolean active = true;
 
 }

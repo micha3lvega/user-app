@@ -30,6 +30,7 @@ public class UserDTO implements Serializable {
 
 	private Date lastUpdate;
 
-	private Boolean active;
+	@Builder.Default
+	private boolean active = true;
 
 }

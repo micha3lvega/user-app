@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 
 @EnableMongoAuditing
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = { "co.com.csti.user", "co.com.csti.user.integration" })
 public class UserServicesApplication {
 
 	public static void main(String[] args) {

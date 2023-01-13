@@ -72,7 +72,7 @@ public class UserController implements IUserService {
 					@Content(mediaType = "application/json", schema = @Schema(implementation = Book.class)) }),
 			@ApiResponse(responseCode = "400", description = "Request invalido", content = @Content),
 			@ApiResponse(responseCode = "409", description = "Ya existe un usuario con el email enviado", content = @Content) })
-	public UserDTO insert(@Valid @RequestBody UserDTO user) {
+	public UserDTO insert(@RequestBody @Valid UserDTO user) {
 		return iUserService.insert(user);
 	}
 

@@ -2,6 +2,7 @@ package co.com.csti.user.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -13,8 +14,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -25,6 +24,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 
+import co.com.csti.user.integration.dto.LoginRequest;
 import co.com.csti.user.integration.dto.UserDTO;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -38,17 +38,12 @@ class UserControllerTest {
 	@LocalServerPort
 	int randomServerPort;
 
-	private static final Logger log = LoggerFactory.getLogger(UserControllerTest.class);
-
 	String url;
 
 	@BeforeEach
 	void before() {
 		restTemplate = new TestRestTemplate();
-
 		url = "http://localhost:" + randomServerPort + "/api/v1/user";
-		log.info("url: {}", url);
-
 	}
 
 	@Test
@@ -57,7 +52,7 @@ class UserControllerTest {
 
 		// Generar el tamaño de la pagina al azar
 		var rand = new Random();
-		var size = rand.nextInt(20);
+		var size = rand.nextInt(19) + 1;
 
 		var pageable = PageRequest.of(0, size);
 
@@ -104,7 +99,7 @@ class UserControllerTest {
 	@DisplayName("Valida que al no ingresar un nombre se genere error")
 	void testErrorUserInvalidName() {
 
-		// No email
+		// No name
 		var user = UserDTO.builder().email("me@example.com").lastName("lastname").mobileNumber("3000000000")
 				.password("123456").build();
 
@@ -120,7 +115,7 @@ class UserControllerTest {
 	@DisplayName("Valida que al no ingresar un apellido se genere error")
 	void testErrorUserInvalidLastName() {
 
-		// No email
+		// No lastname
 		var user = UserDTO.builder().email("me@example.com").name("name").mobileNumber("3000000000").password("123456")
 				.build();
 
@@ -141,7 +136,7 @@ class UserControllerTest {
 		var user = UserDTO.builder().email(randomEmail).name("name").lastName("lastname").mobileNumber("3000000000")
 				.password("123456").build();
 
-		var newUser = controller.insert(user);
+		var newUser = restTemplate.postForObject(url, user, UserDTO.class);
 
 		assertNotNull(newUser);
 		assertNotNull(newUser.getId());
@@ -176,8 +171,6 @@ class UserControllerTest {
 		var requestEntity = new HttpEntity<>(newUser, headers);
 		var updateUser = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, UserDTO.class);
 
-		log.info("updateUser: {}", updateUser);
-
 		assertNotNull(updateUser);
 		assertNotNull(updateUser.getBody());
 		assertNotNull(updateUser.getBody().getId());
@@ -197,7 +190,6 @@ class UserControllerTest {
 
 		// Inactivar el usuario
 		var disableUrl = url + "/" + findUser.getId();
-		log.info("disableUrl: {}", disableUrl);
 		restTemplate.delete(disableUrl);
 
 		// Buscar nuevamente el usuario
@@ -226,5 +218,35 @@ class UserControllerTest {
 		assertNotNull(activeUser.getId());
 		assertTrue(activeUser.isActive());
 
+	}
+
+	@Test
+	@DisplayName("Validar el login del usario")
+	void loginTest() {
+
+		// Crear el usuario
+		var randomEmail = System.currentTimeMillis() + "@email.com";
+
+		var user = UserDTO.builder().email(randomEmail).name("name").lastName("lastname").mobileNumber("3000000000")
+				.password("123456").build();
+
+		var newUser = restTemplate.postForObject(url, user, UserDTO.class);
+
+		assertNotNull(newUser);
+		assertNotNull(newUser.getId());
+		assertEquals(randomEmail, user.getEmail());
+
+		// Validar que la contraseña se encripte
+		assertNotEquals("123456", newUser.getPassword());
+
+		// Loguearse
+		var loginRequest = new LoginRequest(randomEmail, "123456");
+		var loginUrl = url + "/login";
+
+		var loginuser = restTemplate.postForObject(loginUrl, loginRequest, UserDTO.class);
+
+		assertNotNull(loginuser);
+
+		assertNotNull(loginuser.getId());
 	}
 }

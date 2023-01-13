@@ -35,6 +35,7 @@ public class UserDTO implements Serializable {
 	private String mobileNumber;
 
 	@Email
+	@NotEmpty(message = "El correo es obligatorio")
 	private String email;
 
 	@NotEmpty(message = "La contraseña es obligatoria")

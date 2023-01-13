@@ -14,9 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.data.domain.PageRequest;
 
 import co.com.csti.user.integration.dto.UserDTO;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class UserControllerTest {
 
@@ -24,20 +22,14 @@ class UserControllerTest {
 	private UserController controller;
 
 	@Test
-	@DisplayName("Valida que un usuario se cree correctamente")
-	void tesAddUserSuccess() {
+	@DisplayName("Valida que al enviar un paginado se retornen solo el numero de registros solictados")
+	void testPageable() {
 
-		var randomEmail = System.currentTimeMillis() + "@email.com";
+		var pageable = PageRequest.of(0, 10);
 
-		var user = UserDTO.builder().email(randomEmail).name("name").lastName("lastname").mobileNumber("3000000000")
-				.password("123456").build();
+		var findAll = controller.findAll(pageable);
 
-		var newUser = controller.insert(user);
-
-		log.info("Nuevo usuario: {}", newUser);
-
-		assertNotNull(newUser);
-		assertNotNull(newUser.getId());
+		assertEquals(10, findAll.getNumberOfElements());
 
 	}
 
@@ -62,16 +54,15 @@ class UserControllerTest {
 	void testErrorUserInvalidEmailFormat() {
 
 		// No email
-		var user = UserDTO.builder().name("name").email("email").lastName("lastname").mobileNumber("3000000000").password("123456")
-				.build();
+		var user = UserDTO.builder().name("name").email("email").lastName("lastname").mobileNumber("3000000000")
+				.password("123456").build();
 
 		var exception = Assertions.assertThrows(ConstraintViolationException.class, () -> {
 			controller.insert(user);
 		});
 
-		log.info("insert.user.email: {}", exception.getMessage());
-
-		Assertions.assertEquals("insert.user.email: debe ser una dirección de correo electrónico con formato correcto", exception.getMessage());
+		Assertions.assertEquals("insert.user.email: debe ser una dirección de correo electrónico con formato correcto",
+				exception.getMessage());
 
 	}
 
@@ -80,8 +71,8 @@ class UserControllerTest {
 	void testErrorUserInvalidName() {
 
 		// No email
-		var user = UserDTO.builder().email("me@example.com").lastName("lastname").mobileNumber("3000000000").password("123456")
-				.build();
+		var user = UserDTO.builder().email("me@example.com").lastName("lastname").mobileNumber("3000000000")
+				.password("123456").build();
 
 		var exception = Assertions.assertThrows(ConstraintViolationException.class, () -> {
 			controller.insert(user);
@@ -108,14 +99,45 @@ class UserControllerTest {
 	}
 
 	@Test
-	@DisplayName("Valida que al enviar un paginado se retornen solo el numero de registros solictados")
-	void testPageable() {
+	@DisplayName("Valida que un usuario se cree correctamente")
+	void tesAddUserSuccess() {
 
-		var pageable = PageRequest.of(0, 10);
+		var randomEmail = System.currentTimeMillis() + "@email.com";
 
-		var findAll = controller.findAll(pageable);
+		var user = UserDTO.builder().email(randomEmail).name("name").lastName("lastname").mobileNumber("3000000000")
+				.password("123456").build();
 
-		assertEquals(findAll.getNumberOfElements(), 10);
+		var newUser = controller.insert(user);
+
+		assertNotNull(newUser);
+		assertNotNull(newUser.getId());
 
 	}
+
+	@Test
+	@DisplayName("Valida que un usuario se actualice correctamente")
+	void tesUpdateUserSuccess() {
+
+		var randomEmail = System.currentTimeMillis() + "@email.com";
+
+		var user = UserDTO.builder().email(randomEmail).name("name").lastName("lastname").mobileNumber("3000000000")
+				.password("123456").build();
+
+		var newUser = controller.insert(user);
+
+		assertNotNull(newUser);
+		assertNotNull(newUser.getId());
+		assertEquals(randomEmail, user.getEmail());
+
+		var newname = "newname";
+		newUser.setName(newname);
+
+		var updateUser = controller.update(newUser);
+
+		assertNotNull(updateUser);
+		assertNotNull(updateUser.getId());
+		assertEquals(newname, updateUser.getName());
+
+	}
+
 }

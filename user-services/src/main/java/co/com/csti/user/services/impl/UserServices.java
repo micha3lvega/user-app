@@ -91,14 +91,19 @@ public class UserServices implements IUserService {
 		// Buscar el usuario por el email
 		var userByEmail = repository.findByEmail(loginRequest.getEmail().toLowerCase());
 
+		if (userByEmail == null) {
+			throw new UserNotFoundException("Usuario o contraseña incorrectos");
+		}
+
 		// validar la contraseña
-		var matches = encoder.matches(loginRequest.getPassword(), loginRequest.getEmail() + loginRequest.getPassword());
+		var matches = encoder.matches(loginRequest.getPassword(), userByEmail.getPassword());
 
 		if (matches) {
 			return mapper.map(userByEmail, UserDTO.class);
 		}
 
-		return null;
+		throw new UserNotFoundException("Usuario o contraseña incorrectos");
+
 	}
 
 	/*
@@ -117,8 +122,13 @@ public class UserServices implements IUserService {
 		}
 
 		// Codificar la contraseña
-		user.setPassword(encoder.encode(user.getPassword() + user.getEmail().toLowerCase()));
+		var rawPassword = encoder.encode(user.getPassword());
+		user.setPassword(rawPassword);
 
+		// volver el correo en minusculas
+		user.setEmail(user.getEmail().toLowerCase());
+
+		// Guardar el correo
 		var newUser = repository.insert(mapper.map(user, User.class));
 		return mapper.map(newUser, UserDTO.class);
 

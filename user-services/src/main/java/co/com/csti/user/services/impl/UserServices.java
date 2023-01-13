@@ -166,11 +166,11 @@ public class UserServices implements IUserService {
 	 * @see co.com.csti.user.services#active(String)
 	 */
 	@Override
-	public void active(String id) {
+	public UserDTO active(String id) {
 
 		var userForDelete = repository.findById(id).orElseThrow(UserNotFoundException::new);
 		userForDelete.setActive(true);
-		repository.save(userForDelete);
+		return mapper.map(repository.save(userForDelete), UserDTO.class);
 
 	}
 

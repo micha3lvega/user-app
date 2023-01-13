@@ -70,6 +70,6 @@ public interface IUserService {
 	 *
 	 * @param id
 	 */
-	public void active(String id);
+	public UserDTO active(String id);
 
 }

@@ -93,8 +93,8 @@ public class UserController implements IUserService {
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Usuario actualizado con exito"),
 			@ApiResponse(responseCode = "400", description = "Request invalido", content = @Content),
 			@ApiResponse(responseCode = "404", description = "No existe un usuario con el id enviado", content = @Content) })
-	public void active(@PathVariable("id") String id) {
-		iUserService.active(id);
+	public UserDTO active(@PathVariable("id") String id) {
+		return iUserService.active(id);
 	}
 
 	@Override

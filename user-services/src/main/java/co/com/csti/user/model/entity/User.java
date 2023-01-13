@@ -3,10 +3,6 @@ package co.com.csti.user.model.entity;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
-
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;

@@ -7,6 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import co.com.csti.user.integration.dto.LoginRequest;
 import co.com.csti.user.integration.dto.UserDTO;
 import co.com.csti.user.integration.exception.UserExistsException;
 import co.com.csti.user.integration.exception.UserNotFoundException;
@@ -24,9 +25,9 @@ public class UserServices implements IUserService {
 
 	private PasswordEncoder encoder;
 
-
 	/**
 	 * Default constructor
+	 *
 	 * @param repository
 	 * @param mapper
 	 * @param encoder
@@ -68,7 +69,7 @@ public class UserServices implements IUserService {
 	public UserDTO findByEmail(String email) {
 
 		// Buscar si ya existe el email
-		var userByEmail = repository.findByEmail(email);
+		var userByEmail = repository.findByEmail(email.toLowerCase());
 
 		if (userByEmail == null) {
 			throw new UserNotFoundException("No se encontro el usuario con el email: " + email);
@@ -80,20 +81,43 @@ public class UserServices implements IUserService {
 	/*
 	 * (non-Javadoc)
 	 *
+	 * @see co.com.csti.user.services#login(co.com.csti.user.integration.dto.
+	 * LoginRequest)
+	 *
+	 */
+	@Override
+	public UserDTO login(LoginRequest loginRequest) {
+
+		// Buscar el usuario por el email
+		var userByEmail = repository.findByEmail(loginRequest.getEmail().toLowerCase());
+
+		// validar la contraseña
+		var matches = encoder.matches(loginRequest.getPassword(), loginRequest.getEmail() + loginRequest.getPassword());
+
+		if (matches) {
+			return mapper.map(userByEmail, UserDTO.class);
+		}
+
+		return null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
 	 * @see co.com.csti.user.services#insert(co.com.csti.user.integration.dto.User)
 	 */
 	@Override
 	public UserDTO insert(UserDTO user) {
 
 		// Buscar si ya existe el email
-		var userByEmail = repository.findByEmail(user.getEmail());
+		var userByEmail = repository.findByEmail(user.getEmail().toLowerCase());
 
 		if (userByEmail != null) {
 			throw new UserExistsException("Ya existe un usuario con el email: " + user.getEmail());
 		}
 
 		// Codificar la contraseña
-		user.setPassword(encoder.encode(user.getPassword() + user.getEmail()));
+		user.setPassword(encoder.encode(user.getPassword() + user.getEmail().toLowerCase()));
 
 		var newUser = repository.insert(mapper.map(user, User.class));
 		return mapper.map(newUser, UserDTO.class);
@@ -152,6 +176,7 @@ public class UserServices implements IUserService {
 
 	/**
 	 * Convierte una pagina de entidades a sus respectivos dtos
+	 *
 	 * @param users
 	 * @return
 	 */

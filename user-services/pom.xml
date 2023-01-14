@@ -17,7 +17,6 @@
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
 		<java.version>11</java.version>
-		<spring-cloud.version>Hoxton.RC1</spring-cloud.version>
 	</properties>
 	<dependencies>
 		<!-- web dependecies -->
@@ -110,24 +109,6 @@
 						</goals>
 					</execution>
 				</executions>
-				<configuration>
-					<excludes>
-						<exclude>**/dto/**</exclude>
-						<exclude>**/config/**</exclude>
-						<exclude>**/exception/**</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifestEntries>
-							<Class-Path>sap-jco/sapjco3.jar</Class-Path>
-						</manifestEntries>
-					</archive>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>
